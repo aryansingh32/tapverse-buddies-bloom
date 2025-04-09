@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { AiBuddy } from "@/components/AiBuddy";
@@ -34,6 +35,9 @@ const Story = () => {
   };
   
   const selectedChapterData = chapters.find(chapter => chapter.id === selectedChapter);
+  
+  // Ensure unlockedChapters exists, defaulting to an empty array if it doesn't
+  const unlockedChapters = gameState?.unlockedChapters || [];
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-light-gray py-10 px-4 pb-24">
@@ -120,7 +124,8 @@ const Story = () => {
                 <h2 className="font-bold text-lg">Chapters</h2>
                 
                 {chapters.map((chapter) => {
-                  const isUnlocked = gameState.unlockedChapters.includes(chapter.id);
+                  // Use the safe unlockedChapters array we created above
+                  const isUnlocked = unlockedChapters.includes(chapter.id);
                   
                   return (
                     <div 
