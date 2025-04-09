@@ -29,7 +29,7 @@ export function UpgradeCard({ id, name, description, cost, effect, value, owned 
       toast({
         title: "Upgrade Unlocked!",
         description: `You've unlocked the ${name} upgrade!`,
-        variant: "success",
+        variant: "default", // Changed from "success" to "default"
       });
     }, 2000);
   };
