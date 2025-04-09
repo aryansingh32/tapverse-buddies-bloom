@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { AiBuddy } from "@/components/AiBuddy";
@@ -6,9 +5,8 @@ import { ResourceDisplay } from "@/components/ResourceDisplay";
 import { Button } from "@/components/ui/button";
 import { 
   ChevronRight, 
-  Planet, 
-  Lock, 
   Globe, 
+  Lock, 
   Rocket,
   MessageSquare
 } from "lucide-react";
@@ -76,7 +74,7 @@ const Story = () => {
             <div className="bg-gradient-to-r from-purple/20 to-teal/20 p-4 rounded-xl mt-6 mb-6 shadow-sm">
               <div className="flex items-center">
                 <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mr-3 shadow-inner">
-                  <Planet className="h-6 w-6 text-purple" />
+                  <Globe className="h-6 w-6 text-purple" />
                 </div>
                 <div>
                   <h2 className="font-bold">Cosmic Journey</h2>
@@ -136,7 +134,7 @@ const Story = () => {
                           ${isUnlocked ? 'bg-gradient-to-r from-purple to-teal' : 'bg-gray-200'}`}
                         >
                           {isUnlocked ? (
-                            <Planet className="h-5 w-5 text-white" />
+                            <Globe className="h-5 w-5 text-white" />
                           ) : (
                             <Lock className="h-4 w-4 text-gray-400" />
                           )}
