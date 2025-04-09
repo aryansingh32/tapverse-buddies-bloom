@@ -11,6 +11,8 @@ import { Navigation } from "./components/Navigation";
 import Index from "./pages/Index";
 import Shop from "./pages/Shop";
 import Profile from "./pages/Profile";
+import Quests from "./pages/Quests";
+import Story from "./pages/Story";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +29,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/quests" element={<Quests />} />
+            <Route path="/story" element={<Story />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
