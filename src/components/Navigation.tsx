@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, ShoppingCart, User, List, Award, BookOpen } from "lucide-react";
+import { Home, GamepadIcon, Bot, CalendarCheck, Gift, List } from "lucide-react";
 
 export function Navigation() {
   const navigate = useNavigate();
@@ -10,10 +10,10 @@ export function Navigation() {
 
   const navItems = [
     { path: "/", icon: <Home className="h-6 w-6" />, label: "Tap" },
-    { path: "/quests", icon: <Award className="h-6 w-6" />, label: "Quests" },
-    { path: "/story", icon: <BookOpen className="h-6 w-6" />, label: "Story" },
-    { path: "/shop", icon: <ShoppingCart className="h-6 w-6" />, label: "Shop" },
-    { path: "/profile", icon: <User className="h-6 w-6" />, label: "Profile" },
+    { path: "/arcade", icon: <GamepadIcon className="h-6 w-6" />, label: "Arcade" },
+    { path: "/buddy", icon: <Bot className="h-6 w-6" />, label: "Buddy" },
+    { path: "/quests", icon: <CalendarCheck className="h-6 w-6" />, label: "Quests" },
+    { path: "/shop", icon: <Gift className="h-6 w-6" />, label: "Shop" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -23,7 +23,7 @@ export function Navigation() {
       {/* Mobile Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white bg-opacity-70 backdrop-blur-lg border-t border-gray-200 md:hidden">
         <div className="flex items-center justify-around h-16">
-          {navItems.slice(0, 5).map((item) => (
+          {navItems.map((item) => (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
