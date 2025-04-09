@@ -6,7 +6,7 @@ import { UpgradeCard } from "@/components/UpgradeCard";
 import { AiBuddy } from "@/components/AiBuddy";
 import { RedeemSection } from "@/components/RedeemSection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Robot, Rocket, Zap } from "lucide-react";
+import { Bot, Rocket, Zap, Sparkles } from "lucide-react";
 
 const Shop = () => {
   const { upgrades } = useGame();
@@ -30,7 +30,7 @@ const Shop = () => {
               Upgrades
             </TabsTrigger>
             <TabsTrigger value="robots" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple/80 data-[state=active]:to-teal/80 data-[state=active]:text-white">
-              <Robot className="w-4 h-4 mr-1" />
+              <Bot className="w-4 h-4 mr-1" />
               Bots
             </TabsTrigger>
             <TabsTrigger value="redeem" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple/80 data-[state=active]:to-teal/80 data-[state=active]:text-white">
@@ -70,7 +70,7 @@ const Shop = () => {
           
           <TabsContent value="robots">
             <div className="p-6 rounded-xl bg-gradient-to-r from-purple/10 to-teal/10 border border-purple/20 text-center">
-              <Robot className="h-16 w-16 mx-auto text-purple opacity-70 mb-3" />
+              <Bot className="h-16 w-16 mx-auto text-purple opacity-70 mb-3" />
               <h3 className="font-bold text-lg mb-2">Auto-Tapper Bots</h3>
               <p className="text-sm text-gray-600 mb-4">
                 Coming soon! Purchase bots that tap for you even when you're offline.
