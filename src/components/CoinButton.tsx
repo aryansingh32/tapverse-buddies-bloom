@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { useGame } from "../contexts/GameContext";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Coins } from "lucide-react";
 
 export function CoinButton() {
   const { gameState, handleTap } = useGame();
   const [isTapped, setIsTapped] = useState(false);
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; type: "sparkle" | "coin" }>>([]);
   const [particleCount, setParticleCount] = useState(0);
 
   const handleCoinClick = () => {
@@ -21,13 +21,16 @@ export function CoinButton() {
 
   const createParticles = () => {
     const newParticles = [];
-    const count = Math.min(3, Math.floor(gameState.tapPower));
+    const count = Math.min(5, Math.floor(gameState.tapPower) + 2); // More particles based on tap power
     
     for (let i = 0; i < count; i++) {
+      const type = Math.random() > 0.5 ? "sparkle" : "coin";
       newParticles.push({
         id: particleCount + i,
-        x: Math.random() * 60 - 30, // Random position around button
-        y: -20 - Math.random() * 30,  // Start above the button
+        // Create particles in a wider arc
+        x: Math.random() * 160 - 80, 
+        y: -20 - Math.random() * 40,
+        type,
       });
     }
     
@@ -74,15 +77,24 @@ export function CoinButton() {
       {particles.map((particle) => (
         <div
           key={particle.id}
-          className="absolute text-yellow-500 animate-fade-out"
+          className="absolute animate-fade-out"
           style={{
             transform: `translate(${particle.x}px, ${particle.y}px)`,
             animation: 'coin-bounce 1s ease-out forwards, fade-out 1s ease-in forwards'
           }}
         >
-          <Sparkles className="h-6 w-6" />
+          {particle.type === "sparkle" ? (
+            <Sparkles className="h-6 w-6 text-yellow-500" />
+          ) : (
+            <Coins className="h-5 w-5 text-gold" />
+          )}
         </div>
       ))}
+      
+      {/* Floating coins indicator for tap power */}
+      <div className="absolute -top-6 text-lg font-bold text-gold opacity-0 animate-float-up">
+        +{gameState.tapPower.toFixed(1)}
+      </div>
       
       {/* Main coin button */}
       <button

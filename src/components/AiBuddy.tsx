@@ -44,7 +44,7 @@ export function AiBuddy() {
           </div>
         )}
         
-        {/* AI buddy avatar */}
+        {/* AI buddy avatar - fixed position with pointer events only on the avatar */}
         <div 
           className="w-16 h-16 rounded-full bg-gradient-to-br from-purple to-blue-400 
                    shadow-lg border-2 border-white flex items-center justify-center

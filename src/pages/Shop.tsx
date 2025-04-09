@@ -4,6 +4,8 @@ import { useGame } from "@/contexts/GameContext";
 import { ResourceDisplay } from "@/components/ResourceDisplay";
 import { UpgradeCard } from "@/components/UpgradeCard";
 import { AiBuddy } from "@/components/AiBuddy";
+import { RedeemSection } from "@/components/RedeemSection";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Shop = () => {
   const { upgrades } = useGame();
@@ -20,36 +22,47 @@ const Shop = () => {
         
         <ResourceDisplay />
         
-        <div className="mt-8 space-y-6">
-          <h2 className="text-xl font-semibold">Upgrades</h2>
+        <Tabs defaultValue="upgrades" className="mt-8">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="upgrades">Upgrades</TabsTrigger>
+            <TabsTrigger value="redeem">Redeem</TabsTrigger>
+          </TabsList>
           
-          <div className="space-y-4">
-            {upgrades.map((upgrade) => (
-              <UpgradeCard 
-                key={upgrade.id}
-                id={upgrade.id}
-                name={upgrade.name}
-                description={upgrade.description}
-                cost={upgrade.cost}
-                effect={upgrade.effect}
-                value={upgrade.value}
-                owned={upgrade.owned}
-              />
-            ))}
-          </div>
+          <TabsContent value="upgrades" className="space-y-6">
+            <h2 className="text-xl font-semibold">Power Upgrades</h2>
+            
+            <div className="space-y-4">
+              {upgrades.map((upgrade) => (
+                <UpgradeCard 
+                  key={upgrade.id}
+                  id={upgrade.id}
+                  name={upgrade.name}
+                  description={upgrade.description}
+                  cost={upgrade.cost}
+                  effect={upgrade.effect}
+                  value={upgrade.value}
+                  owned={upgrade.owned}
+                />
+              ))}
+            </div>
+            
+            <div className="mt-8 p-4 rounded-xl bg-yellow-50 border border-yellow-200">
+              <h3 className="font-bold text-amber-700 mb-1">Coming Soon!</h3>
+              <p className="text-sm text-amber-700">
+                New skins, special abilities, and more exciting upgrades are on their way!
+              </p>
+            </div>
+          </TabsContent>
           
-          <div className="mt-8 p-4 rounded-xl bg-yellow-50 border border-yellow-200">
-            <h3 className="font-bold text-amber-700 mb-1">Coming Soon!</h3>
-            <p className="text-sm text-amber-700">
-              New skins, special abilities, and more exciting upgrades are on their way!
-            </p>
-          </div>
-        </div>
+          <TabsContent value="redeem">
+            <RedeemSection />
+          </TabsContent>
+        </Tabs>
       </div>
       
       <AiBuddy />
     </div>
   );
-};
+}
 
 export default Shop;
