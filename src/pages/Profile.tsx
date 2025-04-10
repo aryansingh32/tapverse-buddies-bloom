@@ -37,14 +37,19 @@ const Profile = () => {
     }
   };
   
+  // Add safe default values when using gameState properties
+  const streakDays = gameState?.streakDays || 0;
+  const totalTaps = gameState?.totalTaps || 0;
+  const level = gameState?.level || 1;
+  
   const badges = [
     { id: "beginner", name: "Beginner Tapper", description: "Started your tapping journey", unlocked: true },
-    { id: "streak-3", name: "3-Day Streak", description: "Played 3 days in a row", unlocked: gameState.streakDays >= 3 },
-    { id: "streak-7", name: "7-Day Streak", description: "Played 7 days in a row", unlocked: gameState.streakDays >= 7 },
-    { id: "taps-1000", name: "Tap Master", description: "Reached 1,000 total taps", unlocked: gameState.totalTaps >= 1000 },
-    { id: "taps-10000", name: "Tap Legend", description: "Reached 10,000 total taps", unlocked: gameState.totalTaps >= 10000 },
-    { id: "level-5", name: "Novice Explorer", description: "Reached level 5", unlocked: gameState.level >= 5 },
-    { id: "level-10", name: "Expert Explorer", description: "Reached level 10", unlocked: gameState.level >= 10 },
+    { id: "streak-3", name: "3-Day Streak", description: "Played 3 days in a row", unlocked: streakDays >= 3 },
+    { id: "streak-7", name: "7-Day Streak", description: "Played 7 days in a row", unlocked: streakDays >= 7 },
+    { id: "taps-1000", name: "Tap Master", description: "Reached 1,000 total taps", unlocked: totalTaps >= 1000 },
+    { id: "taps-10000", name: "Tap Legend", description: "Reached 10,000 total taps", unlocked: totalTaps >= 10000 },
+    { id: "level-5", name: "Novice Explorer", description: "Reached level 5", unlocked: level >= 5 },
+    { id: "level-10", name: "Expert Explorer", description: "Reached level 10", unlocked: level >= 10 },
   ];
   
   return (
@@ -76,15 +81,15 @@ const Profile = () => {
               <div className="flex items-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple to-blue-400 flex items-center justify-center mr-4">
                   <span className="text-white text-2xl font-bold">
-                    {gameState.level}
+                    {level}
                   </span>
                 </div>
                 <div>
                   <h2 className="font-bold text-xl">TapVerse Player</h2>
                   <div className="flex items-center">
-                    <p className="text-gray-600 text-sm">Level {gameState.level}</p>
+                    <p className="text-gray-600 text-sm">Level {level}</p>
                     <div className="ml-2 text-xs bg-purple/10 text-purple px-2 py-0.5 rounded-full">
-                      {gameState.experience % 100}/100 XP
+                      {(gameState?.experience || 0) % 100}/100 XP
                     </div>
                   </div>
                 </div>
@@ -93,34 +98,34 @@ const Profile = () => {
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <p className="text-sm text-gray-600">Total Taps</p>
-                  <p className="font-bold text-lg">{gameState.totalTaps.toLocaleString()}</p>
+                  <p className="font-bold text-lg">{(totalTaps || 0).toLocaleString()}</p>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <p className="text-sm text-gray-600">Tap Power</p>
-                  <p className="font-bold text-lg">{gameState.tapPower.toFixed(1)}</p>
+                  <p className="font-bold text-lg">{(gameState?.tapPower || 1).toFixed(1)}</p>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <p className="text-sm text-gray-600">Multiplier</p>
-                  <p className="font-bold text-lg">x{gameState.coinMultiplier.toFixed(1)}</p>
+                  <p className="font-bold text-lg">x{(gameState?.coinMultiplier || 1).toFixed(1)}</p>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <p className="text-sm text-gray-600">Day Streak</p>
-                  <p className="font-bold text-lg">{gameState.streakDays}</p>
+                  <p className="font-bold text-lg">{streakDays}</p>
                 </div>
               </div>
               
               <div className="bg-purple/5 p-4 rounded-xl mb-6">
                 <div className="flex items-center mb-2">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple to-blue-400 flex items-center justify-center mr-3">
-                    <span className="text-white font-bold">{aiName.charAt(0)}</span>
+                    <span className="text-white font-bold">{(aiName || "AI").charAt(0)}</span>
                   </div>
                   <div>
-                    <h3 className="font-bold">{aiName}</h3>
+                    <h3 className="font-bold">{aiName || "AI Buddy"}</h3>
                     <p className="text-xs text-gray-600">Your AI buddy</p>
                   </div>
                 </div>
                 <p className="text-sm text-gray-600">
-                  "{aiName} has been with you through {gameState.totalTaps.toLocaleString()} taps and {Math.floor(gameState.coins).toLocaleString()} coins!"
+                  "{(aiName || "Your buddy")} has been with you through {(totalTaps || 0).toLocaleString()} taps and {(Math.floor(gameState?.coins || 0)).toLocaleString()} coins!"
                 </p>
               </div>
               
@@ -150,10 +155,10 @@ const Profile = () => {
                     <p className="text-gray-600">Current Balance</p>
                     <Sparkles className="h-4 w-4 text-gold" />
                   </div>
-                  <p className="text-2xl font-bold">{Math.floor(gameState.coins).toLocaleString()} coins</p>
+                  <p className="text-2xl font-bold">{Math.floor(gameState?.coins || 0).toLocaleString()} coins</p>
                   <div className="flex justify-between items-center mt-4">
                     <p className="text-xs text-gray-500">Multiplier applied</p>
-                    <p className="text-sm font-medium">x{gameState.coinMultiplier.toFixed(1)}</p>
+                    <p className="text-sm font-medium">x{(gameState?.coinMultiplier || 1).toFixed(1)}</p>
                   </div>
                 </div>
                 
@@ -166,15 +171,15 @@ const Profile = () => {
                   <div className="grid grid-cols-2 gap-3 mt-3">
                     <div className="bg-white p-3 rounded border border-gray-100">
                       <p className="text-xs text-gray-500">Total Earned</p>
-                      <p className="font-medium">{(gameState.totalTaps * gameState.tapPower).toLocaleString()} coins</p>
+                      <p className="font-medium">{((totalTaps || 0) * (gameState?.tapPower || 1)).toLocaleString()} coins</p>
                     </div>
                     <div className="bg-white p-3 rounded border border-gray-100">
                       <p className="text-xs text-gray-500">Drop Events Joined</p>
-                      <p className="font-medium">{gameState.dropEventsJoined}</p>
+                      <p className="font-medium">{gameState?.dropEventsJoined || 0}</p>
                     </div>
                     <div className="bg-white p-3 rounded border border-gray-100">
                       <p className="text-xs text-gray-500">Rewards Redeemed</p>
-                      <p className="font-medium">{gameState.dropEventsRedeemed}</p>
+                      <p className="font-medium">{gameState?.dropEventsRedeemed || 0}</p>
                     </div>
                     <div className="bg-white p-3 rounded border border-gray-100">
                       <p className="text-xs text-gray-500">Conversion Rate</p>
