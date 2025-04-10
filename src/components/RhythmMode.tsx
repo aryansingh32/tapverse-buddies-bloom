@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import { Toast } from "@/components/ui/toast";
 import { toast } from "@/hooks/use-toast";
 
 // Define available beat patterns
-const BEAT_PATTERNS = [
+export const BEAT_PATTERNS = [
   {
     id: "basic",
     name: "Basic Beat",
