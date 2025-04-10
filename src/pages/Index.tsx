@@ -3,6 +3,7 @@ import { ResourceDisplay } from "@/components/ResourceDisplay";
 import { CoinButton } from "@/components/CoinButton";
 import { AiBuddy } from "@/components/AiBuddy";
 import { OnboardingModal } from "@/components/OnboardingModal";
+import { RhythmMode } from "@/components/RhythmMode";
 import { useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,9 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Rhythm Mode Component */}
+        <RhythmMode />
+
         {/* Boost Buttons */}
         <div className="mt-4 grid grid-cols-3 gap-2">
           <Button 
@@ -126,9 +130,9 @@ const Index = () => {
             </p>
           </div>
           <div className="bg-white p-4 rounded-xl shadow-md border border-purple/10">
-            <h3 className="font-semibold mb-1 text-sm">Energy Tip</h3>
+            <h3 className="font-semibold mb-1 text-sm">Rhythm Tip</h3>
             <p className="text-xs text-gray-600">
-              Your energy regenerates over time. Take short breaks!
+              Tap in rhythm with the beat to earn bonus coins!
             </p>
           </div>
         </div>
