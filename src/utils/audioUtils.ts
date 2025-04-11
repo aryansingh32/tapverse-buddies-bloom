@@ -5,12 +5,21 @@ let perfectSound: HTMLAudioElement | null = null;
 let backgroundMusic: HTMLAudioElement | null = null;
 
 // Initialize sounds if in browser environment
-if (typeof window !== "undefined") {
-  tapSound = new Audio("/sounds/tap.mp3");
-  perfectSound = new Audio("/sounds/perfect.mp3");
-  backgroundMusic = new Audio("/sounds/background-beat.mp3");
-  backgroundMusic.loop = true;
-}
+const initializeAudio = () => {
+  if (typeof window !== "undefined") {
+    try {
+      tapSound = new Audio("/sounds/tap.mp3");
+      perfectSound = new Audio("/sounds/perfect.mp3");
+      backgroundMusic = new Audio("/sounds/background-beat.mp3");
+      backgroundMusic.loop = true;
+    } catch (error) {
+      console.error("Error initializing audio:", error);
+    }
+  }
+};
+
+// Call initialization
+initializeAudio();
 
 export const sounds = {
   tapSound,
@@ -18,18 +27,28 @@ export const sounds = {
   backgroundMusic
 };
 
-// Play sound utility
+// Play sound utility with safety checks
 export const playSound = (sound: HTMLAudioElement | null) => {
   if (sound) {
-    sound.currentTime = 0;
-    sound.play();
+    try {
+      sound.currentTime = 0;
+      sound.play().catch(err => {
+        console.warn("Could not play sound:", err);
+      });
+    } catch (error) {
+      console.warn("Error playing sound:", error);
+    }
   }
 };
 
-// Pause sound utility
+// Pause sound utility with safety checks
 export const pauseSound = (sound: HTMLAudioElement | null) => {
   if (sound) {
-    sound.pause();
-    sound.currentTime = 0;
+    try {
+      sound.pause();
+      sound.currentTime = 0;
+    } catch (error) {
+      console.warn("Error pausing sound:", error);
+    }
   }
 };

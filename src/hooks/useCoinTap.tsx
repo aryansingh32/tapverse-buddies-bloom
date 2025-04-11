@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useGame } from "../contexts/GameContext";
 import { useRhythmMode } from "./useRhythmMode";
+import { sounds, playSound } from "@/utils/audioUtils";
 
 interface UseCoinTapProps {
   showToast: any;
@@ -66,6 +67,11 @@ export function useCoinTap({
         }
         setComboCounter(0);
       }
+    }
+    
+    // Play tap sound
+    if (sounds.tapSound) {
+      playSound(sounds.tapSound);
     }
     
     // Apply tap with any applicable multiplier

@@ -17,7 +17,7 @@ export function CoinButton() {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { createCoinBurst, createFloatingNumber } = useCoinParticles();
   
-  // Use the coin tap hook
+  // Use the coin tap hook with proper callback functions
   const { 
     isTapped, 
     comboCounter, 
@@ -26,8 +26,22 @@ export function CoinButton() {
     beatProgress
   } = useCoinTap({
     showToast: toast,
-    createParticles: () => {},
-    createSpecialParticles: () => {},
+    createParticles: () => {
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        createCoinBurst(centerX, centerY, 3);
+      }
+    },
+    createSpecialParticles: (isPerfect) => {
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        createCoinBurst(centerX, centerY, isPerfect ? 10 : 6);
+      }
+    },
     setFloatingValue,
     showFloatingText: () => {
       setShowFloatingText(true);
