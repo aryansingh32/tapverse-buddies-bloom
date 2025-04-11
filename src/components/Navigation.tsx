@@ -70,8 +70,8 @@ export function Navigation() {
         </div>
       </div>
 
-      {/* Profile button - non-sticky at top left for Android */}
-      <div className="absolute top-4 left-4 z-40 flex flex-col items-center">
+      {/* Profile button - sticky at top left */}
+      <div className="fixed top-4 left-4 z-50 flex flex-col items-center">
         <button
           onClick={() => navigate('/profile')}
           className="flex flex-col items-center"

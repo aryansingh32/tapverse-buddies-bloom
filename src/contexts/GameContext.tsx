@@ -21,17 +21,14 @@ interface GameState {
   dropEventsRedeemed: number;
   unlockedChapters: number[];
   currentChapter: number;
-  aiName: string;
+  aiName: string; // Added aiName property to fix the TypeScript error
+  // Boost properties
   powerBoostActive: boolean;
   powerBoostEndTime: number;
   doubleCoinsActive: boolean;
   doubleCoinsEndTime: number;
   autoTapActive: boolean;
   autoTapEndTime: number;
-  dailyAdsWatched: number;
-  weeklyAdsWatched: number;
-  totalAdsWatched: number;
-  tempUnlockedArcadeGames: { gameId: string; unlockEndTime: number }[];
 }
 
 // Define upgrades available in the shop
@@ -100,8 +97,6 @@ interface GameContextProps {
   readDialogue: (chapterId: number, dialogueId: number) => void;
   claimQuestReward: (id: string) => void;
   applyBoost: (type: 'power' | 'double' | 'auto', duration: number) => void;
-  watchAd: (reason: 'energy' | 'quest' | 'boost' | 'arcade') => Promise<boolean>;
-  unlockGameWithAd: (gameId: string, hours: number) => void;
 }
 
 const initialGameState: GameState = {
@@ -124,17 +119,14 @@ const initialGameState: GameState = {
   dropEventsRedeemed: 0,
   unlockedChapters: [1],
   currentChapter: 1,
-  aiName: '',
+  aiName: '',  // Default empty string for aiName
+  // Initialize boost properties
   powerBoostActive: false,
   powerBoostEndTime: 0,
   doubleCoinsActive: false,
   doubleCoinsEndTime: 0,
   autoTapActive: false,
   autoTapEndTime: 0,
-  dailyAdsWatched: 0,
-  weeklyAdsWatched: 0,
-  totalAdsWatched: 0,
-  tempUnlockedArcadeGames: [],
 };
 
 const initialUpgrades: Upgrade[] = [
@@ -323,6 +315,7 @@ const initialChapters: StoryChapter[] = [
 const GameContext = createContext<GameContextProps | undefined>(undefined);
 
 export function GameProvider({ children }: { children: ReactNode }) {
+  // Initialize state with saved values or defaults
   const [gameState, setGameState] = useState<GameState>(() => {
     const savedState = localStorage.getItem('tapverse-game-state');
     return savedState ? JSON.parse(savedState) : initialGameState;
@@ -350,6 +343,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return savedName || aiNames[Math.floor(Math.random() * aiNames.length)];
   });
 
+  // Update gameState with aiName when it's initialized
   useEffect(() => {
     setGameState(prev => ({
       ...prev,
@@ -357,6 +351,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }));
   }, [aiName]);
 
+  // Save game state to local storage whenever it changes
   useEffect(() => {
     localStorage.setItem('tapverse-game-state', JSON.stringify(gameState));
     localStorage.setItem('tapverse-upgrades', JSON.stringify(upgrades));
@@ -365,19 +360,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('tapverse-ai-name', aiName);
   }, [gameState, upgrades, quests, chapters, aiName]);
 
+  // Check for day change to reset daily quests and update streak
   useEffect(() => {
     const currentDate = new Date().toISOString().split('T')[0];
     if (gameState.lastPlayDate !== currentDate) {
+      // It's a new day
       setGameState(prev => ({
         ...prev,
         dailyTaps: 0,
-        dailyAdsWatched: 0,
         lastPlayDate: currentDate,
         streakDays: isConsecutiveDay(prev.lastPlayDate, currentDate) 
           ? prev.streakDays + 1 
           : 1
       }));
       
+      // Reset daily quests
       setQuests(prev => prev.map(quest => {
         if (quest.type === 'daily') {
           return { ...quest, progress: 0, completed: false };
@@ -385,32 +382,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
         return quest;
       }));
       
+      // Show welcome back message
       setCurrentBuddyMessage({
         type: 'greeting',
         message: `Welcome back! You're on a ${gameState.streakDays + 1} day streak!`
       });
     }
-    
-    const today = new Date();
-    if (today.getDay() === 0) {
-      const lastLoginWeek = new Date(gameState.lastPlayDate).getDay();
-      
-      if (lastLoginWeek !== 0) {
-        setGameState(prev => ({
-          ...prev,
-          weeklyAdsWatched: 0
-        }));
-        
-        setQuests(prev => prev.map(quest => {
-          if (quest.type === 'weekly') {
-            return { ...quest, progress: 0, completed: false };
-          }
-          return quest;
-        }));
-      }
-    }
   }, []);
-
+  
+  // Helper function to check if dates are consecutive
   const isConsecutiveDay = (lastDate: string, currentDate: string) => {
     const last = new Date(lastDate);
     const current = new Date(currentDate);
@@ -419,6 +399,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return diffDays === 1;
   };
 
+  // Energy regeneration logic
   useEffect(() => {
     const energyTimer = setInterval(() => {
       setGameState((prev) => {
@@ -427,14 +408,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
         }
         return prev;
       });
-    }, 5000);
+    }, 5000); // Regenerate 1 energy every 5 seconds
 
     return () => clearInterval(energyTimer);
   }, []);
 
+  // Handle tap action
   const handleTap = () => {
     if (gameState.energy <= 0) return;
 
+    // Apply boosts to the coins earned calculation
     const powerMultiplier = gameState.powerBoostActive ? 2 : 1;
     const doubleMultiplier = gameState.doubleCoinsActive ? 2 : 1;
     const coinsEarned = gameState.tapPower * gameState.coinMultiplier * powerMultiplier * doubleMultiplier;
@@ -448,14 +431,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
       experience: prev.experience + 1
     }));
 
+    // Update quests progress
     setQuests(prevQuests => prevQuests.map(quest => {
       if (quest.completed) return quest;
       
       let newProgress = quest.progress;
       
       if (quest.id === 'daily-1' || quest.id === 'weekly-1') {
+        // Tap quest
         newProgress = quest.progress + 1;
       } else if (quest.id === 'daily-2') {
+        // Earn coins quest
         newProgress = quest.progress + coinsEarned;
       }
       
@@ -466,20 +452,26 @@ export function GameProvider({ children }: { children: ReactNode }) {
       };
     }));
     
+    // Check for level up
     checkForLevelUp();
-    
+
+    // Random chance to show a message
     if (Math.random() < 0.1) {
       showNewMessage();
     }
   };
-
+  
+  // Check for level up
   const checkForLevelUp = () => {
+    // Simple level formula: level = 1 + Math.floor(exp / 100)
     const newLevel = 1 + Math.floor(gameState.experience / 100);
     
     if (newLevel > gameState.level) {
+      // Level up!
       setGameState(prev => ({ 
         ...prev, 
         level: newLevel,
+        // Unlock chapters based on level
         unlockedChapters: [
           ...prev.unlockedChapters,
           ...chapters
@@ -488,6 +480,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         ]
       }));
       
+      // Show level up message
       setCurrentBuddyMessage({
         type: 'achievement',
         message: `Congratulations! You've reached level ${newLevel}!`
@@ -495,14 +488,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Buy upgrade
   const buyUpgrade = (id: string) => {
     const upgrade = upgrades.find(u => u.id === id);
     if (!upgrade) return;
     
     if (gameState.coins >= upgrade.cost) {
+      // Update coins
       setGameState((prev) => {
         const newState = { ...prev, coins: prev.coins - upgrade.cost };
         
+        // Apply upgrade effect
         switch (upgrade.effect) {
           case 'tapPower':
             newState.tapPower += upgrade.value;
@@ -512,7 +508,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
             break;
           case 'maxEnergy':
             newState.maxEnergy += upgrade.value;
-            newState.energy += upgrade.value;
+            newState.energy += upgrade.value; // Also increase current energy
             break;
           default:
             break;
@@ -521,6 +517,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         return newState;
       });
       
+      // Update upgrade (increase cost for next purchase)
       setUpgrades(prev => prev.map(u => {
         if (u.id === id) {
           return {
@@ -532,6 +529,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         return u;
       }));
       
+      // Update buy upgrades quest
       setQuests(prevQuests => prevQuests.map(quest => {
         if (quest.id === 'weekly-2' && !quest.completed) {
           const newProgress = quest.progress + 1;
@@ -544,6 +542,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         return quest;
       }));
       
+      // Show a message
       setCurrentBuddyMessage({
         type: 'achievement',
         message: `Great job upgrading your ${upgrade.name}!`
@@ -551,53 +550,64 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Show new buddy message
   const showNewMessage = () => {
     const randomIndex = Math.floor(Math.random() * buddyMessages.length);
     setCurrentBuddyMessage(buddyMessages[randomIndex]);
     
+    // Clear message after a few seconds
     setTimeout(() => {
       setCurrentBuddyMessage(null);
     }, 4000);
   };
 
+  // Reset energy (for testing or special actions)
   const resetEnergy = () => {
     setGameState((prev) => ({ ...prev, energy: prev.maxEnergy }));
   };
 
+  // Change skin
   const changeSkin = (skin: string) => {
     if (gameState.unlockedSkins.includes(skin)) {
       setGameState((prev) => ({ ...prev, selectedSkin: skin }));
     }
   };
   
+  // Complete a quest
   const completeQuest = (id: string) => {
     setQuests(prev => prev.map(quest => 
       quest.id === id ? { ...quest, completed: true } : quest
     ));
   };
   
+  // Claim quest reward
   const claimQuestReward = (id: string) => {
     const quest = quests.find(q => q.id === id);
     if (!quest || !quest.completed) return;
     
+    // Add rewards
     setGameState(prev => ({
       ...prev,
       coins: prev.coins + quest.rewardCoins,
       experience: prev.experience + quest.rewardXp
     }));
     
+    // Check for level up after XP gain
     checkForLevelUp();
     
+    // Mark as claimed by setting progress beyond requirement
     setQuests(prev => prev.map(q => 
       q.id === id ? { ...q, progress: q.requirement + 1 } : q
     ));
     
+    // Show message
     setCurrentBuddyMessage({
       type: 'achievement',
       message: `Quest reward claimed: ${quest.rewardCoins} coins & ${quest.rewardXp} XP!`
     });
   };
   
+  // Read dialogue in a story chapter
   const readDialogue = (chapterId: number, dialogueId: number) => {
     setChapters(prev => prev.map(chapter => {
       if (chapter.id === chapterId) {
@@ -615,49 +625,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const watchAd = async (reason: 'energy' | 'quest' | 'boost' | 'arcade'): Promise<boolean> => {
-    setGameState(prev => ({
-      ...prev,
-      dailyAdsWatched: prev.dailyAdsWatched + 1,
-      weeklyAdsWatched: prev.weeklyAdsWatched + 1,
-      totalAdsWatched: prev.totalAdsWatched + 1
-    }));
-    
-    setQuests(prevQuests => prevQuests.map(quest => {
-      if ((quest.id === 'daily-ads' || quest.id === 'weekly-ads') && !quest.completed) {
-        const newProgress = quest.progress + 1;
-        return {
-          ...quest,
-          progress: newProgress,
-          completed: newProgress >= quest.requirement
-        };
-      }
-      return quest;
-    }));
-    
-    return true;
-  };
-
-  const unlockGameWithAd = (gameId: string, hours: number) => {
-    const endTime = Date.now() + (hours * 60 * 60 * 1000);
-    
-    setGameState(prev => ({
-      ...prev,
-      tempUnlockedArcadeGames: [
-        ...prev.tempUnlockedArcadeGames.filter(g => g.gameId !== gameId),
-        { gameId, unlockEndTime: endTime }
-      ]
-    }));
-    
-    setCurrentBuddyMessage({
-      type: 'achievement',
-      message: `${gameId} unlocked for ${hours} hours! Enjoy!`
-    });
-  };
-
+  // Handle boosts and auto-tap functionality
   useEffect(() => {
     const now = Date.now();
     
+    // Check and clear expired boosts
     if (gameState.powerBoostActive && now > gameState.powerBoostEndTime) {
       setGameState(prev => ({ ...prev, powerBoostActive: false }));
     }
@@ -668,6 +640,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setGameState(prev => ({ ...prev, autoTapActive: false }));
     }
     
+    // Auto-tap functionality
     let autoTapInterval: NodeJS.Timeout | null = null;
     
     if (gameState.autoTapActive) {
@@ -675,7 +648,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         if (gameState.energy > 0) {
           handleTap();
         }
-      }, 1000);
+      }, 1000); // Auto-tap once per second
     }
     
     return () => {
@@ -687,6 +660,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       gameState.powerBoostEndTime, gameState.doubleCoinsEndTime, gameState.autoTapEndTime, 
       gameState.energy]);
 
+  // Apply a boost effect
   const applyBoost = (type: 'power' | 'double' | 'auto', duration: number) => {
     const now = Date.now();
     const endTime = now + (duration * 1000);
@@ -716,36 +690,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  useEffect(() => {
-    const now = Date.now();
-    
-    if (gameState.tempUnlockedArcadeGames && gameState.tempUnlockedArcadeGames.some(game => game.unlockEndTime < now)) {
-      setGameState(prev => ({
-        ...prev,
-        tempUnlockedArcadeGames: prev.tempUnlockedArcadeGames?.filter(
-          game => game.unlockEndTime > now
-        ) || []
-      }));
-    }
-    
-    const timer = setInterval(() => {
-      const now = Date.now();
-      setGameState(prev => {
-        if (prev.tempUnlockedArcadeGames && prev.tempUnlockedArcadeGames.some(game => game.unlockEndTime < now)) {
-          return {
-            ...prev,
-            tempUnlockedArcadeGames: prev.tempUnlockedArcadeGames?.filter(
-              game => game.unlockEndTime > now
-            ) || []
-          };
-        }
-        return prev;
-      });
-    }, 60000);
-    
-    return () => clearInterval(timer);
-  }, [gameState.tempUnlockedArcadeGames]);
-
   return (
     <GameContext.Provider 
       value={{ 
@@ -764,9 +708,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         completeQuest,
         readDialogue,
         claimQuestReward,
-        applyBoost,
-        watchAd,
-        unlockGameWithAd
+        applyBoost
       }}
     >
       {children}
@@ -774,6 +716,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Custom hook to use the game context
 export const useGame = () => {
   const context = useContext(GameContext);
   if (context === undefined) {

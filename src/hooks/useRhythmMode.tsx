@@ -39,7 +39,7 @@ export function useRhythmMode(): RhythmContextProps {
         description: "Tap in rhythm with the beat for bonus coins!",
       });
       if (isSoundEnabled && sounds.backgroundMusic) {
-        playSound(sounds.backgroundMusic);
+        sounds.backgroundMusic.play();
       }
     } else {
       if (sounds.backgroundMusic) {
@@ -54,7 +54,7 @@ export function useRhythmMode(): RhythmContextProps {
     setIsSoundEnabled(newState);
     
     if (newState && isRhythmMode && sounds.backgroundMusic) {
-      playSound(sounds.backgroundMusic);
+      sounds.backgroundMusic.play();
     } else if (sounds.backgroundMusic) {
       pauseSound(sounds.backgroundMusic);
     }
@@ -71,19 +71,14 @@ export function useRhythmMode(): RhythmContextProps {
     setIsVibrationEnabled(newState);
     
     // Test vibration when enabling
-    if (newState && typeof navigator !== "undefined" && "vibrate" in navigator) {
-      try {
-        navigator.vibrate(100);
-      } catch (error) {
-        console.warn("Vibration API error:", error);
-      }
+    if (newState && "vibrate" in navigator) {
+      navigator.vibrate(100);
     }
   }, [isVibrationEnabled]);
 
   // Play the beat pattern
   useEffect(() => {
-    let beatInterval: NodeJS.Timeout | null = null;
-    let progressInterval: NodeJS.Timeout | null = null;
+    let beatInterval: NodeJS.Timeout;
     let beatIndex = 0;
     
     if (isRhythmMode && isSoundEnabled) {
@@ -98,12 +93,8 @@ export function useRhythmMode(): RhythmContextProps {
           playSound(sounds.tapSound);
         }
         
-        if (isVibrationEnabled && typeof navigator !== "undefined" && "vibrate" in navigator) {
-          try {
-            navigator.vibrate(50);
-          } catch (error) {
-            console.warn("Vibration API error:", error);
-          }
+        if (isVibrationEnabled && "vibrate" in navigator) {
+          navigator.vibrate(50);
         }
         
         beatIndex = (beatIndex + 1) % currentPattern.pattern.length;
@@ -111,34 +102,27 @@ export function useRhythmMode(): RhythmContextProps {
         
         // Visualize the beat progress
         setBeatProgress(100);
-        
-        if (progressInterval) clearInterval(progressInterval);
-        
-        progressInterval = setInterval(() => {
+        const decrementProgress = () => {
           setBeatProgress((prev) => {
             if (prev <= 0) return 0;
             return prev - 5;
           });
-        }, nextBeatDelay / 20);
+        };
         
-        beatInterval = setTimeout(() => {
+        const progressInterval = setInterval(decrementProgress, nextBeatDelay / 20);
+        
+        setTimeout(() => {
+          clearInterval(progressInterval);
           playNextBeat();
         }, nextBeatDelay);
       };
       
       playNextBeat();
-      
       return () => {
-        if (beatInterval) clearTimeout(beatInterval);
-        if (progressInterval) clearInterval(progressInterval);
+        clearInterval(beatInterval);
         setIsPlaying(false);
       };
     }
-    
-    return () => {
-      if (beatInterval) clearTimeout(beatInterval);
-      if (progressInterval) clearInterval(progressInterval);
-    };
   }, [isRhythmMode, isSoundEnabled, isVibrationEnabled, currentPattern]);
 
   // Check if a tap matches the rhythm
@@ -163,23 +147,15 @@ export function useRhythmMode(): RhythmContextProps {
           playSound(sounds.perfectSound);
         }
         
-        if (isVibrationEnabled && typeof navigator !== "undefined" && "vibrate" in navigator) {
-          try {
-            navigator.vibrate([50, 50, 100]);
-          } catch (error) {
-            console.warn("Vibration API error:", error);
-          }
+        if (isVibrationEnabled && "vibrate" in navigator) {
+          navigator.vibrate([50, 50, 100]);
         }
         
         return { matched: true, multiplier: currentPattern.multiplier * 1.5 };
       } else if (isGood) {
         // Good hit
-        if (isVibrationEnabled && typeof navigator !== "undefined" && "vibrate" in navigator) {
-          try {
-            navigator.vibrate(100);
-          } catch (error) {
-            console.warn("Vibration API error:", error);
-          }
+        if (isVibrationEnabled && "vibrate" in navigator) {
+          navigator.vibrate(100);
         }
         
         return { matched: true, multiplier: currentPattern.multiplier };
