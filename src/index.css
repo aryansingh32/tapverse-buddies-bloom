@@ -1,3 +1,4 @@
+
 @import './components/animations.css';
 
 @tailwind base;
@@ -20,6 +21,22 @@ body {
 
 .light-gray {
   background-color: #f9f9f9;
+}
+
+/* Toast Override */
+.toast {
+  animation: toast-slide-in 0.3s ease-out forwards !important;
+}
+
+@keyframes toast-slide-in {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Coin Styles */
@@ -51,4 +68,55 @@ body {
   font-size: 1.5em;
   color: #fff;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Enhanced button styles */
+button {
+  transition: all 0.15s ease-in-out !important;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Progress bar enhancements */
+.progress {
+  overflow: hidden;
+}
+
+.progress-value {
+  transition: width 0.3s ease-in-out;
+}
+
+/* Semi-transparent gradient overlays for cards */
+.card-overlay-purple {
+  background: linear-gradient(135deg, rgba(155, 135, 245, 0.1), rgba(79, 209, 197, 0.05));
+}
+
+.card-overlay-gold {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 0, 0.05));
+}
+
+/* Remove blue highlight on mobile touch */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c4c4c4;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9b87f5;
 }

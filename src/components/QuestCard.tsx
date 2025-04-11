@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, Circle, Award, Sparkles, Video } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useState } from "react";
+import { sounds, playSound } from "@/utils/audioUtils";
+import { useCoinParticles } from "./coin/CoinParticlesContext";
 
 interface QuestCardProps {
   title: string;
@@ -32,10 +34,34 @@ export function QuestCard({
   const progressPercentage = Math.min(Math.floor((progress / requirement) * 100), 100);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isButtonPressed, setIsButtonPressed] = useState(false);
+  const { createConfetti } = useCoinParticles();
   
   // Handle claim with animation
   const handleClaim = () => {
     setIsAnimating(true);
+    setIsButtonPressed(true);
+    
+    // Try to vibrate device
+    try {
+      if (window.navigator.vibrate) {
+        window.navigator.vibrate([30, 50, 30]);
+      }
+    } catch (err) {
+      // Ignore vibration errors
+    }
+    
+    // Play celebration sound
+    try {
+      if (sounds.perfectSound) {
+        playSound(sounds.perfectSound);
+      }
+    } catch (err) {
+      // Ignore sound errors
+    }
+    
+    // Trigger confetti explosion
+    createConfetti(150);
     
     // Play animation before calling the claim function
     setTimeout(() => {
@@ -44,6 +70,7 @@ export function QuestCard({
       // Reset animation state after a delay
       setTimeout(() => {
         setIsAnimating(false);
+        setIsButtonPressed(false);
       }, 500);
     }, 500);
   };
@@ -52,10 +79,21 @@ export function QuestCard({
   const handleWatchAd = () => {
     if (isWatchingAd) return;
     setIsWatchingAd(true);
+    setIsButtonPressed(true);
+    
+    // Try to vibrate device
+    try {
+      if (window.navigator.vibrate) {
+        window.navigator.vibrate(20);
+      }
+    } catch (err) {
+      // Ignore vibration errors
+    }
     
     // Simulate ad completion after 2 seconds
     setTimeout(() => {
       setIsWatchingAd(false);
+      setIsButtonPressed(false);
       handleClaim();
     }, 2000);
   };
@@ -87,7 +125,7 @@ export function QuestCard({
           <span>{progress}/{requirement}</span>
         </div>
         
-        <Progress value={progressPercentage} className="h-2" />
+        <Progress value={progressPercentage} className="h-2 bg-gray-200 rounded-full overflow-hidden" />
       </div>
       
       <div className="mt-3 flex justify-between items-center">
@@ -104,8 +142,12 @@ export function QuestCard({
           <Button 
             size="sm" 
             onClick={handleClaim}
-            className={`text-xs py-0 h-7 bg-gradient-to-r from-purple to-teal hover:opacity-90 text-white
+            className={`text-xs py-0 h-7 bg-gradient-to-r from-purple to-teal hover:opacity-90 text-white rounded-full
+              ${isButtonPressed ? 'scale-95' : ''}
               ${isAnimating ? 'animate-pulse' : ''}`}
+            onMouseDown={() => setIsButtonPressed(true)}
+            onMouseUp={() => setIsButtonPressed(false)}
+            onMouseLeave={() => setIsButtonPressed(false)}
           >
             Claim
           </Button>
@@ -116,7 +158,11 @@ export function QuestCard({
             size="sm"
             variant="outline"
             onClick={handleWatchAd}
-            className="text-xs py-0 h-7 flex items-center"
+            className={`text-xs py-0 h-7 flex items-center rounded-full
+              ${isButtonPressed ? 'scale-95' : ''}`}
+            onMouseDown={() => setIsButtonPressed(true)}
+            onMouseUp={() => setIsButtonPressed(false)}
+            onMouseLeave={() => setIsButtonPressed(false)}
           >
             <Video className="h-3 w-3 mr-1" />
             Complete with Ad
@@ -128,7 +174,15 @@ export function QuestCard({
         )}
         
         {claimed && (
-          <span className="text-xs text-green-500 font-medium">Claimed</span>
+          <div className="relative flex items-center">
+            <span className="text-xs text-green-500 font-medium">Claimed</span>
+            {/* Badge animation */}
+            <div className="ml-1 relative h-5 w-5">
+              <Award className="h-5 w-5 text-gold absolute animate-pulse-soft" />
+              <div className="absolute inset-0 rounded-full animate-glow-pulse opacity-70"
+                   style={{ boxShadow: '0 0 8px 2px rgba(255, 215, 0, 0.5)' }}></div>
+            </div>
+          </div>
         )}
       </div>
     </div>

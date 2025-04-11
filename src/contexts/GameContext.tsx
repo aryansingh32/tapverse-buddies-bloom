@@ -722,9 +722,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (gameState.tempUnlockedArcadeGames && gameState.tempUnlockedArcadeGames.some(game => game.unlockEndTime < now)) {
       setGameState(prev => ({
         ...prev,
-        tempUnlockedArcadeGames: prev.tempUnlockedArcadeGames.filter(
+        tempUnlockedArcadeGames: prev.tempUnlockedArcadeGames?.filter(
           game => game.unlockEndTime > now
-        )
+        ) || []
       }));
     }
     
@@ -734,9 +734,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
         if (prev.tempUnlockedArcadeGames && prev.tempUnlockedArcadeGames.some(game => game.unlockEndTime < now)) {
           return {
             ...prev,
-            tempUnlockedArcadeGames: prev.tempUnlockedArcadeGames.filter(
+            tempUnlockedArcadeGames: prev.tempUnlockedArcadeGames?.filter(
               game => game.unlockEndTime > now
-            )
+            ) || []
           };
         }
         return prev;
