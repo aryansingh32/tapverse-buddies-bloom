@@ -19,7 +19,6 @@ export function CoinButton() {
   
   // Use the coin tap hook
   const { 
-    particles,
     isTapped, 
     comboCounter, 
     handleCoinClick: originalHandleCoinClick, 
@@ -39,7 +38,7 @@ export function CoinButton() {
   // Enhanced coin click handler with visual effects
   const handleCoinClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     // Original logic
-    originalHandleCoinClick(e);
+    originalHandleCoinClick();
     
     if (gameState.energy <= 0) return;
     
@@ -87,7 +86,7 @@ export function CoinButton() {
       <RhythmRing isRhythmMode={isRhythmMode} beatProgress={beatProgress} />
       
       {/* Particles */}
-      <ParticleSystem particles={particles} />
+      <ParticleSystem particles={[]} />
       
       {/* Main coin button */}
       <button
