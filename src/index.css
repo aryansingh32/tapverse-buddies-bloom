@@ -1,222 +1,54 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import './components/animations.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 240 33% 98%;
-    --foreground: 224 71% 4%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-
-    --primary: 173 89% 51%;  /* Teal #1DE9B6 */
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 262 100% 65%;  /* Purple #7C4DFF */
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-
-    --accent: 263 85% 62%;  /* Lighter variant of purple */
-    --accent-foreground: 220 13% 91%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 173 89% 51%;
-
-    --radius: 1rem;  /* Increased border radius for bubbly UI */
-  }
-
-  .dark {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-
-    --card: 224 71% 4%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 224 71% 4%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 173 89% 51%;  /* Same teal for consistency */
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 262 100% 65%;  /* Same purple for consistency */
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 263 85% 62%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 173 89% 51%;
-  }
+body {
+  @apply bg-gray-50 text-gray-900;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground font-sans;
-  }
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }
 
-/* Custom classes for TapVerse */
-@layer components {
-  .tap-button {
-    @apply relative select-none cursor-pointer transition-all duration-200 
-           active:scale-95 hover:brightness-105 focus:outline-none;
-  }
-
-  .gradient-text {
-    @apply bg-gradient-to-r from-purple to-teal text-transparent bg-clip-text;
-  }
-  
-  .card-gradient {
-    @apply bg-gradient-to-br from-white/80 to-white/30 backdrop-blur-sm;
-  }
-
-  .glass {
-    @apply bg-white/60 backdrop-blur-md border border-white/30 shadow-lg;
-  }
-  
-  .futuristic-panel {
-    @apply bg-gradient-to-br from-purple/5 to-teal/5 backdrop-blur-sm border border-white/30 rounded-xl;
-  }
-  
-  .glow-effect {
-    @apply relative;
-  }
-  
-  .glow-effect::before {
-    @apply content-[''] absolute inset-0 -z-10 bg-gradient-to-r from-purple to-teal opacity-20 blur-xl rounded-full;
-  }
-
-  /* New classes for rhythm mode */
-  .rhythm-pulse {
-    @apply animate-rhythm-pulse;
-  }
-  
-  .note-float {
-    animation: note-float 2s ease-out forwards;
-  }
-  
-  .perfect-hit {
-    @apply relative;
-  }
-  
-  .perfect-hit::before {
-    @apply content-[''] absolute inset-0 -z-10 bg-gradient-to-r from-orange-400 to-red-500 opacity-70 blur-xl rounded-full;
-    animation: expand-fade 0.6s ease-out forwards;
-  }
+.gradient-text {
+  background: linear-gradient(to right, #6b46c1, #4fd1c5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Hide scrollbar but allow scrolling */
-.no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+.light-gray {
+  background-color: #f9f9f9;
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+/* Coin Styles */
+.coin-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
 }
 
-/* Custom animations for coin effects */
-@keyframes float-up {
-  0% { transform: translateY(0); opacity: 0; }
-  50% { transform: translateY(-20px); opacity: 1; }
-  100% { transform: translateY(-40px); opacity: 0; }
+.coin {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #ffc107;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s ease;
 }
 
-.animate-float-up {
-  animation: float-up 1s ease-out forwards;
+.coin:active {
+  transform: scale(0.9);
 }
 
-/* Enhanced coin bounce animation */
-@keyframes enhanced-coin-bounce {
-  0% { transform: translate(var(--x, 0), var(--y, 0)) scale(0.5) rotate(0deg); opacity: 0.7; }
-  50% { transform: translate(calc(var(--x, 0) * 1.5), calc(var(--y, 0) - 25px)) scale(1.2) rotate(180deg); opacity: 1; }
-  100% { transform: translate(calc(var(--x, 0) * 2), calc(var(--y, 0) - 50px)) scale(0.8) rotate(360deg); opacity: 0; }
-}
-
-/* Soft pulse animation for icons */
-@keyframes pulse-soft {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-.animate-pulse-soft {
-  animation: pulse-soft 2s ease-in-out infinite;
-}
-
-/* Coin spin animation */
-@keyframes coin-spin {
-  0% { transform: rotateY(0deg) rotate(-12deg); }
-  100% { transform: rotateY(360deg) rotate(-12deg); }
-}
-
-.animate-coin-spin {
-  animation: coin-spin 7s linear infinite;
-}
-
-/* New animations for rhythm mode */
-@keyframes rhythm-pulse {
-  0% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.7; }
-}
-
-.animate-rhythm-pulse {
-  animation: rhythm-pulse 0.5s ease-in-out infinite;
-}
-
-@keyframes note-float {
-  0% { transform: translate(0, 0) rotate(0deg); opacity: 0.7; }
-  50% { transform: translate(0, -30px) rotate(20deg); opacity: 1; }
-  100% { transform: translate(0, -60px) rotate(-20deg); opacity: 0; }
-}
-
-@keyframes expand-fade {
-  0% { transform: scale(0.8); opacity: 0.8; }
-  100% { transform: scale(1.5); opacity: 0; }
-}
-
-/* Animation for the rhythm beat indicator */
-@keyframes beat-pulse {
-  0% { transform: scale(1); opacity: 0.2; }
-  50% { transform: scale(1.2); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 0.2; }
-}
-
-.animate-beat-pulse {
-  animation: beat-pulse 1s ease-in-out;
-}
-
-/* Animation for combo text */
-@keyframes combo-pop {
-  0% { transform: scale(0.8); opacity: 0; }
-  20% { transform: scale(1.2); opacity: 1; }
-  80% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(0.9); opacity: 0; }
-}
-
-.animate-combo-pop {
-  animation: combo-pop 1.5s ease-out;
+/* Floating Text Styles */
+.floating-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5em;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }

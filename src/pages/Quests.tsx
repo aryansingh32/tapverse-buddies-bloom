@@ -1,15 +1,17 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { AiBuddy } from "@/components/AiBuddy";
 import { ResourceDisplay } from "@/components/ResourceDisplay";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, CheckCircle2, Clock, Award, BarChart3 } from "lucide-react";
+import { Calendar, CheckCircle2, Clock, Award, Video } from "lucide-react";
 import { QuestCard } from "@/components/QuestCard";
+import { useToast } from "@/hooks/use-toast";
 
 const Quests = () => {
   const { quests, gameState, claimQuestReward } = useGame();
+  const { toast } = useToast();
+  const [questCompleted, setQuestCompleted] = useState<string | null>(null);
   
   useEffect(() => {
     document.title = "Quests - TapVerse";
@@ -18,6 +20,67 @@ const Quests = () => {
   const dailyQuests = quests.filter(quest => quest.type === 'daily');
   const weeklyQuests = quests.filter(quest => quest.type === 'weekly');
   
+  // Handle quest claim with animation
+  const handleClaimQuest = (questId: string) => {
+    setQuestCompleted(questId);
+    
+    // Show toast notification
+    toast({
+      title: "Quest Completed!",
+      description: "You've earned rewards for completing this quest!",
+      variant: "default",
+    });
+    
+    // Create quest completion animation
+    createQuestCompletionAnimation();
+    
+    // Call the actual reward function
+    claimQuestReward(questId);
+    
+    // Reset state after animation
+    setTimeout(() => {
+      setQuestCompleted(null);
+    }, 2000);
+  };
+  
+  // Create quest completion animation
+  const createQuestCompletionAnimation = () => {
+    // Create element for animation
+    const animContainer = document.createElement('div');
+    animContainer.className = 'fixed inset-0 pointer-events-none z-50 flex items-center justify-center';
+    document.body.appendChild(animContainer);
+    
+    animContainer.innerHTML = `
+      <div class="flex flex-col items-center justify-center">
+        <div class="animate-scale-in text-purple font-bold text-4xl opacity-0" 
+            style="animation: questComplete 1.5s forwards;">
+          QUEST COMPLETE!
+        </div>
+        <div class="mt-4 text-gold text-6xl animate-bounce">
+          🏆
+        </div>
+      </div>
+    `;
+    
+    // Add style for the animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes questComplete {
+        0% { transform: scale(0.5); opacity: 0; }
+        25% { transform: scale(1.2); opacity: 1; }
+        75% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(1.5); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Clean up after animation
+    setTimeout(() => {
+      document.body.removeChild(animContainer);
+      document.head.removeChild(style);
+    }, 2000);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-light-gray py-10 px-4 pb-24">
       <div className="max-w-md mx-auto">
@@ -74,9 +137,24 @@ const Quests = () => {
                     rewardXp={quest.rewardXp}
                     completed={quest.completed}
                     claimed={quest.progress > quest.requirement}
-                    onClaim={() => claimQuestReward(quest.id)}
+                    onClaim={() => handleClaimQuest(quest.id)}
+                    hasAdOption={quest.id === 'daily-2'} // Enable ad option for specific quests
                   />
                 ))}
+                
+                {/* Ad-based Daily Quest */}
+                <QuestCard 
+                  title="Watch 3 Ads"
+                  description="Support the game by watching some ads"
+                  progress={gameState.dailyAdsWatched || 0}
+                  requirement={3}
+                  rewardCoins={75}
+                  rewardXp={30}
+                  completed={(gameState.dailyAdsWatched || 0) >= 3}
+                  claimed={false}
+                  onClaim={() => handleClaimQuest('daily-ads')}
+                  hasAdOption={true}
+                />
               </div>
             </div>
             
@@ -111,9 +189,24 @@ const Quests = () => {
                     rewardXp={quest.rewardXp}
                     completed={quest.completed}
                     claimed={quest.progress > quest.requirement}
-                    onClaim={() => claimQuestReward(quest.id)}
+                    onClaim={() => handleClaimQuest(quest.id)}
+                    hasAdOption={quest.id === 'weekly-2'} // Enable ad option for specific quests
                   />
                 ))}
+                
+                {/* Ad-based Weekly Quest */}
+                <QuestCard 
+                  title="Ad Supporter"
+                  description="Watch 10 ads this week to earn special rewards"
+                  progress={gameState.weeklyAdsWatched || 0}
+                  requirement={10}
+                  rewardCoins={250}
+                  rewardXp={100}
+                  completed={(gameState.weeklyAdsWatched || 0) >= 10}
+                  claimed={false}
+                  onClaim={() => handleClaimQuest('weekly-ads')}
+                  hasAdOption={true}
+                />
               </div>
             </div>
             
@@ -133,7 +226,9 @@ const Quests = () => {
         </div>
       </div>
       
-      <AiBuddy />
+      <div className="fixed bottom-20 right-4 z-10">
+        <AiBuddy />
+      </div>
     </div>
   );
 };
