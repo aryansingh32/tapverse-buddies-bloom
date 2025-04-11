@@ -21,6 +21,7 @@ interface GameState {
   dropEventsRedeemed: number;
   unlockedChapters: number[];
   currentChapter: number;
+  aiName: string; // Added aiName property to fix the TypeScript error
 }
 
 // Define upgrades available in the shop
@@ -110,6 +111,7 @@ const initialGameState: GameState = {
   dropEventsRedeemed: 0,
   unlockedChapters: [1],
   currentChapter: 1,
+  aiName: '',  // Default empty string for aiName
 };
 
 const initialUpgrades: Upgrade[] = [
@@ -325,6 +327,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const savedName = localStorage.getItem('tapverse-ai-name');
     return savedName || aiNames[Math.floor(Math.random() * aiNames.length)];
   });
+
+  // Update gameState with aiName when it's initialized
+  useEffect(() => {
+    setGameState(prev => ({
+      ...prev,
+      aiName
+    }));
+  }, [aiName]);
 
   // Save game state to local storage whenever it changes
   useEffect(() => {
