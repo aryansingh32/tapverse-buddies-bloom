@@ -719,7 +719,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const now = Date.now();
     
-    if (gameState.tempUnlockedArcadeGames.some(game => game.unlockEndTime < now)) {
+    if (gameState.tempUnlockedArcadeGames && gameState.tempUnlockedArcadeGames.some(game => game.unlockEndTime < now)) {
       setGameState(prev => ({
         ...prev,
         tempUnlockedArcadeGames: prev.tempUnlockedArcadeGames.filter(
@@ -731,7 +731,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const timer = setInterval(() => {
       const now = Date.now();
       setGameState(prev => {
-        if (prev.tempUnlockedArcadeGames.some(game => game.unlockEndTime < now)) {
+        if (prev.tempUnlockedArcadeGames && prev.tempUnlockedArcadeGames.some(game => game.unlockEndTime < now)) {
           return {
             ...prev,
             tempUnlockedArcadeGames: prev.tempUnlockedArcadeGames.filter(
