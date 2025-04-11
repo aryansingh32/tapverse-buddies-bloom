@@ -70,8 +70,8 @@ export function Navigation() {
         </div>
       </div>
 
-      {/* Profile button - replacing hamburger menu */}
-      <div className="fixed top-4 right-4 z-50 flex flex-col items-center">
+      {/* Profile button - sticky at top left */}
+      <div className="fixed top-4 left-4 z-50 flex flex-col items-center">
         <button
           onClick={() => navigate('/profile')}
           className="flex flex-col items-center"

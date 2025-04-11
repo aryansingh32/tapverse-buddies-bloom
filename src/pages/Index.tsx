@@ -8,9 +8,12 @@ import { useGame } from "@/contexts/GameContext";
 import { Button } from "@/components/ui/button";
 import { Zap, Star, Timer } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { BoostButton } from "@/components/BoostButton";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const { gameState, resetEnergy } = useGame();
+  const { toast } = useToast();
 
   // Animation/sound effects could be added here
   useEffect(() => {
@@ -21,6 +24,25 @@ const Index = () => {
   const xpNeededForNextLevel = 100; // Simplified level formula from GameContext
   const currentLevelXp = gameState.experience % xpNeededForNextLevel;
   const xpPercentage = (currentLevelXp / xpNeededForNextLevel) * 100;
+  
+  // Handle energy refill with ad
+  const handleEnergyRefill = () => {
+    // Simulate watching an ad
+    toast({
+      title: "Ad Starting",
+      description: "Watching ad to refill your energy...",
+    });
+    
+    // Simulate ad completion after 2 seconds
+    setTimeout(() => {
+      resetEnergy();
+      toast({
+        title: "Energy Refilled!",
+        description: "Your energy has been fully restored!",
+        variant: "default",
+      });
+    }, 2000);
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-white to-light-gray py-10 px-4">
@@ -74,27 +96,24 @@ const Index = () => {
 
         {/* Boost Buttons */}
         <div className="mt-4 grid grid-cols-3 gap-2">
-          <Button 
-            variant="outline" 
-            className="flex flex-col items-center justify-center h-16 border-purple/20 hover:bg-purple/5"
-          >
-            <Zap className="h-5 w-5 text-purple mb-1" />
-            <span className="text-xs">Power Tap</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="flex flex-col items-center justify-center h-16 border-gold/20 hover:bg-gold/5"
-          >
-            <Star className="h-5 w-5 text-gold mb-1" />
-            <span className="text-xs">Double Coins</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="flex flex-col items-center justify-center h-16 border-teal/20 hover:bg-teal/5"
-          >
-            <Timer className="h-5 w-5 text-teal mb-1" />
-            <span className="text-xs">Auto-Tap</span>
-          </Button>
+          <BoostButton 
+            icon={Zap} 
+            label="Power Tap"
+            type="power"
+            duration={30}
+          />
+          <BoostButton 
+            icon={Star} 
+            label="Double Coins"
+            type="double"
+            duration={60}
+          />
+          <BoostButton 
+            icon={Timer} 
+            label="Auto-Tap"
+            type="auto"
+            duration={45}
+          />
         </div>
 
         <div className="mt-6 mb-5">
@@ -111,7 +130,7 @@ const Index = () => {
               </>
             ) : (
               <>
-                Out of energy! <Button onClick={resetEnergy} size="sm" variant="outline">Refill Energy</Button>
+                Out of energy! <Button onClick={handleEnergyRefill} size="sm" variant="outline">Refill Energy</Button>
               </>
             )}
           </p>

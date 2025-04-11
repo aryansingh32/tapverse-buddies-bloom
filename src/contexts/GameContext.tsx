@@ -22,6 +22,13 @@ interface GameState {
   unlockedChapters: number[];
   currentChapter: number;
   aiName: string; // Added aiName property to fix the TypeScript error
+  // Boost properties
+  powerBoostActive: boolean;
+  powerBoostEndTime: number;
+  doubleCoinsActive: boolean;
+  doubleCoinsEndTime: number;
+  autoTapActive: boolean;
+  autoTapEndTime: number;
 }
 
 // Define upgrades available in the shop
@@ -89,6 +96,7 @@ interface GameContextProps {
   completeQuest: (id: string) => void;
   readDialogue: (chapterId: number, dialogueId: number) => void;
   claimQuestReward: (id: string) => void;
+  applyBoost: (type: 'power' | 'double' | 'auto', duration: number) => void;
 }
 
 const initialGameState: GameState = {
@@ -112,6 +120,13 @@ const initialGameState: GameState = {
   unlockedChapters: [1],
   currentChapter: 1,
   aiName: '',  // Default empty string for aiName
+  // Initialize boost properties
+  powerBoostActive: false,
+  powerBoostEndTime: 0,
+  doubleCoinsActive: false,
+  doubleCoinsEndTime: 0,
+  autoTapActive: false,
+  autoTapEndTime: 0,
 };
 
 const initialUpgrades: Upgrade[] = [
@@ -402,7 +417,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const handleTap = () => {
     if (gameState.energy <= 0) return;
 
-    const coinsEarned = gameState.tapPower * gameState.coinMultiplier;
+    // Apply boosts to the coins earned calculation
+    const powerMultiplier = gameState.powerBoostActive ? 2 : 1;
+    const doubleMultiplier = gameState.doubleCoinsActive ? 2 : 1;
+    const coinsEarned = gameState.tapPower * gameState.coinMultiplier * powerMultiplier * doubleMultiplier;
     
     setGameState((prev) => ({
       ...prev,
@@ -607,6 +625,71 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  // Handle boosts and auto-tap functionality
+  useEffect(() => {
+    const now = Date.now();
+    
+    // Check and clear expired boosts
+    if (gameState.powerBoostActive && now > gameState.powerBoostEndTime) {
+      setGameState(prev => ({ ...prev, powerBoostActive: false }));
+    }
+    if (gameState.doubleCoinsActive && now > gameState.doubleCoinsEndTime) {
+      setGameState(prev => ({ ...prev, doubleCoinsActive: false }));
+    }
+    if (gameState.autoTapActive && now > gameState.autoTapEndTime) {
+      setGameState(prev => ({ ...prev, autoTapActive: false }));
+    }
+    
+    // Auto-tap functionality
+    let autoTapInterval: NodeJS.Timeout | null = null;
+    
+    if (gameState.autoTapActive) {
+      autoTapInterval = setInterval(() => {
+        if (gameState.energy > 0) {
+          handleTap();
+        }
+      }, 1000); // Auto-tap once per second
+    }
+    
+    return () => {
+      if (autoTapInterval) {
+        clearInterval(autoTapInterval);
+      }
+    };
+  }, [gameState.powerBoostActive, gameState.doubleCoinsActive, gameState.autoTapActive, 
+      gameState.powerBoostEndTime, gameState.doubleCoinsEndTime, gameState.autoTapEndTime, 
+      gameState.energy]);
+
+  // Apply a boost effect
+  const applyBoost = (type: 'power' | 'double' | 'auto', duration: number) => {
+    const now = Date.now();
+    const endTime = now + (duration * 1000);
+    
+    switch (type) {
+      case 'power':
+        setGameState(prev => ({ 
+          ...prev, 
+          powerBoostActive: true, 
+          powerBoostEndTime: endTime 
+        }));
+        break;
+      case 'double':
+        setGameState(prev => ({ 
+          ...prev, 
+          doubleCoinsActive: true, 
+          doubleCoinsEndTime: endTime 
+        }));
+        break;
+      case 'auto':
+        setGameState(prev => ({ 
+          ...prev, 
+          autoTapActive: true, 
+          autoTapEndTime: endTime 
+        }));
+        break;
+    }
+  };
+
   return (
     <GameContext.Provider 
       value={{ 
@@ -624,7 +707,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         changeSkin,
         completeQuest,
         readDialogue,
-        claimQuestReward
+        claimQuestReward,
+        applyBoost
       }}
     >
       {children}
