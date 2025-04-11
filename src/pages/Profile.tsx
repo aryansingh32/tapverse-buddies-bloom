@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { AiBuddy } from "@/components/AiBuddy";
 import { ResourceDisplay } from "@/components/ResourceDisplay";
@@ -13,12 +13,29 @@ import {
   Calendar, 
   BarChart4, 
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  Settings,
+  Music,
+  Volume2,
+  Vibrate
 } from "lucide-react";
 import { BadgeCard } from "@/components/BadgeCard";
+import { useRhythmMode } from "@/hooks/useRhythmMode";
+import { BEAT_PATTERNS } from "@/constants/beatPatterns";
+import { Switch } from "@/components/ui/switch";
 
 const Profile = () => {
   const { gameState, aiName } = useGame();
+  const {
+    isRhythmMode,
+    toggleRhythmMode,
+    isSoundEnabled,
+    toggleSound,
+    isVibrationEnabled,
+    toggleVibration,
+    currentPattern,
+    setCurrentPattern
+  } = useRhythmMode();
   
   useEffect(() => {
     document.title = "Profile - TapVerse";
@@ -61,7 +78,7 @@ const Profile = () => {
         <ResourceDisplay />
         
         <Tabs defaultValue="profile" className="mt-8">
-          <TabsList className="grid w-full grid-cols-3 mb-6 rounded-xl p-1 bg-white shadow-md">
+          <TabsList className="grid w-full grid-cols-4 mb-6 rounded-xl p-1 bg-white shadow-md">
             <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple/80 data-[state=active]:to-teal/80 data-[state=active]:text-white">
               <User className="w-4 h-4 mr-1" />
               Profile
@@ -73,6 +90,10 @@ const Profile = () => {
             <TabsTrigger value="badges" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple/80 data-[state=active]:to-teal/80 data-[state=active]:text-white">
               <Award className="w-4 h-4 mr-1" />
               Badges
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple/80 data-[state=active]:to-teal/80 data-[state=active]:text-white">
+              <Settings className="w-4 h-4 mr-1" />
+              Settings
             </TabsTrigger>
           </TabsList>
           
@@ -127,17 +148,6 @@ const Profile = () => {
                 <p className="text-sm text-gray-600">
                   "{(aiName || "Your buddy")} has been with you through {(totalTaps || 0).toLocaleString()} taps and {(Math.floor(gameState?.coins || 0)).toLocaleString()} coins!"
                 </p>
-              </div>
-              
-              <div className="space-y-2">
-                <h3 className="font-semibold">Settings</h3>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50"
-                  onClick={handleReset}
-                >
-                  Reset Progress
-                </Button>
               </div>
             </div>
           </TabsContent>
@@ -226,6 +236,93 @@ const Profile = () => {
                 <p className="text-sm text-center text-gray-600">
                   Keep tapping to unlock more achievements!
                 </p>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="settings">
+            <div className="bg-white rounded-xl p-6 shadow-md border border-purple/10">
+              <div className="flex items-center mb-6">
+                <Settings className="w-10 h-10 text-purple mr-4" />
+                <h2 className="text-xl font-bold">Settings</h2>
+              </div>
+              
+              {/* Rhythm Mode Settings */}
+              <div className="mb-6">
+                <h3 className="text-lg font-medium mb-3">Rhythm Mode</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Music className="w-5 h-5 text-purple mr-3"/>
+                      <div>
+                        <p className="font-medium">Rhythm Mode</p>
+                        <p className="text-xs text-gray-500">Tap to the beat for bonus coins</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={isRhythmMode}
+                      onCheckedChange={toggleRhythmMode}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Volume2 className="w-5 h-5 text-purple mr-3"/>
+                      <div>
+                        <p className="font-medium">Sound Effects</p>
+                        <p className="text-xs text-gray-500">Play sounds with rhythm</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={isSoundEnabled}
+                      onCheckedChange={toggleSound}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Vibrate className="w-5 h-5 text-purple mr-3"/>
+                      <div>
+                        <p className="font-medium">Vibration</p>
+                        <p className="text-xs text-gray-500">Feel the rhythm</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={isVibrationEnabled}
+                      onCheckedChange={toggleVibration}
+                    />
+                  </div>
+                  
+                  <div className="pt-2">
+                    <p className="font-medium mb-2">Beat Patterns</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {BEAT_PATTERNS.map((pattern, index) => (
+                        <Button
+                          key={index}
+                          variant={currentPattern.name === pattern.name ? "default" : "outline"}
+                          className={`justify-start ${currentPattern.name === pattern.name ? 'bg-purple text-white' : 'border-purple/20 text-gray-700'}`}
+                          onClick={() => setCurrentPattern(pattern)}
+                        >
+                          <span className="mr-2">{pattern.name}</span>
+                          <span className="text-xs">x{pattern.multiplier}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-medium mb-3">Game Settings</h3>
+                <div className="space-y-4">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50"
+                    onClick={handleReset}
+                  >
+                    Reset Progress
+                  </Button>
+                </div>
               </div>
             </div>
           </TabsContent>

@@ -1,13 +1,15 @@
 
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, GamepadIcon, Bot, CalendarCheck, Gift, List } from "lucide-react";
+import { Home, GamepadIcon, Bot, CalendarCheck, Gift, UserRound } from "lucide-react";
+import { useGame } from "@/contexts/GameContext";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function Navigation() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [navOpen, setNavOpen] = useState(false);
-
+  const { gameState } = useGame();
+  
   const navItems = [
     { path: "/", icon: <Home className="h-6 w-6" />, label: "Tap" },
     { path: "/arcade", icon: <GamepadIcon className="h-6 w-6" />, label: "Arcade" },
@@ -68,13 +70,23 @@ export function Navigation() {
         </div>
       </div>
 
-      {/* Mobile menu button - shown on very small screens */}
-      <button
-        className="md:hidden fixed top-4 right-4 z-50 p-2 rounded-full bg-white shadow-md"
-        onClick={() => setNavOpen(!navOpen)}
-      >
-        <List className="h-6 w-6" />
-      </button>
+      {/* Profile button - replacing hamburger menu */}
+      <div className="fixed top-4 right-4 z-50 flex flex-col items-center">
+        <button
+          onClick={() => navigate('/profile')}
+          className="flex flex-col items-center"
+          aria-label="Profile"
+        >
+          <Avatar className="h-10 w-10 border-2 border-purple/30 bg-white shadow-md hover:shadow-lg transition-all">
+            <AvatarFallback className="bg-gradient-to-br from-purple to-teal/50 text-white">
+              {gameState?.aiName?.substring(0, 1) || 'T'}
+            </AvatarFallback>
+          </Avatar>
+          <div className="text-xs mt-1 font-medium text-gray-700">
+            Hey, {gameState?.aiName || 'Player'}
+          </div>
+        </button>
+      </div>
     </>
   );
 }
